@@ -191,7 +191,7 @@ def main():
         unsafe_allow_html=True
     )
 
-    st.title('Single stock Data')
+    st.title('Single mutual fund Data')
     st.sidebar.title('Search')
 
     # Get user input for ticker symbols
@@ -247,7 +247,7 @@ def main():
             # Display stock information
             stock_data = get_stock_data(ticker)
             if stock_data:
-                st.subheader(f'stock Information for {ticker}')
+                st.subheader(f'mutual Information for {ticker}')
                 col1, col2 = st.columns(2)
 
                 for key, value in stock_data.items():
