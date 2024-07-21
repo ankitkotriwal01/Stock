@@ -25,10 +25,10 @@ def get_ticker_from_company_name(company_name):
         print(f"Error fetching ticker for {company_name}: {e}")
     return ticker
 
-def get_trading_recommendation(stock_history):
-    sma_50 = SMAIndicator(close=stock_history['Close'], window=50).sma_indicator()
-    sma_200 = SMAIndicator(close=stock_history['Close'], window=200).sma_indicator()
-    rsi = RSIIndicator(close=stock_history['Close']).rsi().iloc[-1]
+def get_trading_recommendation(mutual fund_history):
+    sma_50 = SMAIndicator(close=mutual fund_history['Close'], window=50).sma_indicator()
+    sma_200 = SMAIndicator(close=mutual fund_history['Close'], window=200).sma_indicator()
+    rsi = RSIIndicator(close=mutual fund_history['Close']).rsi().iloc[-1]
 
     if sma_50.iloc[-1] > sma_200.iloc[-1] and rsi < 30:
         return "Buy"
@@ -36,9 +36,9 @@ def get_trading_recommendation(stock_history):
         return "Sell"
     else:
         return "Hold"
-def get_stock_news(ticker):
-    # Construct Google search URL for stock news
-    url = f"https://www.google.com/search?q={ticker}+stock+news"
+def get_mutual fund_news(ticker):
+    # Construct Google search URL for mutual fund news
+    url = f"https://www.google.com/search?q={ticker}+mutual fund+news"
 
     # Send HTTP GET request and parse the response
     response = requests.get(url)
@@ -110,10 +110,10 @@ def format_percentage(value):
     else:
         return f"{value:.2f}%"
 
-# Function to fetch stock data
-def get_stock_data(ticker):
-    stock = yf.Ticker(ticker)
-    info = stock.info
+# Function to fetch mutual fund data
+def get_mutual fund_data(ticker):
+    mutual fund = yf.Ticker(ticker)
+    info = mutual fund.info
     data = {
         'Name': info.get('shortName', 'N/A'),
 
@@ -169,15 +169,15 @@ def get_stock_data(ticker):
     }
     return data
 
-# Function to fetch historical stock data
-def get_stock_data_history(ticker):
-    stock = yf.Ticker(ticker)
-    data = stock.history(period='20y')
+# Function to fetch historical mutual fund data
+def get_mutual fund_data_history(ticker):
+    mutual fund = yf.Ticker(ticker)
+    data = mutual fund.history(period='20y')
     return data
 
 # Main function to run the app
 def main():
-    st.set_page_config(page_title='Stock Analysis App', layout="wide")
+    st.set_page_config(page_title='mutual fund Analysis App', layout="wide")
 
     # Custom CSS to set font to Times New Roman
     st.markdown(
@@ -191,7 +191,7 @@ def main():
         unsafe_allow_html=True
     )
 
-    st.title('Single Stock Data')
+    st.title('Single mutual fund Data')
     st.sidebar.title('Search')
 
     # Get user input for ticker symbols
@@ -207,27 +207,27 @@ def main():
             # Display interactive chart
             st.subheader(f'Interactive Chart for {ticker}')
 
-            stock_history = get_stock_data_history(ticker)
+            mutual fund_history = get_mutual fund_data_history(ticker)
 
             # Calculate technical indicators
-            sma_50 = SMAIndicator(close=stock_history['Close'], window=50).sma_indicator()
-            sma_200 = SMAIndicator(close=stock_history['Close'], window=200).sma_indicator()
-            rsi = RSIIndicator(close=stock_history['Close']).rsi()
+            sma_50 = SMAIndicator(close=mutual fund_history['Close'], window=50).sma_indicator()
+            sma_200 = SMAIndicator(close=mutual fund_history['Close'], window=200).sma_indicator()
+            rsi = RSIIndicator(close=mutual fund_history['Close']).rsi()
 
             # Create candlestick trace
-            candlestick = go.Candlestick(x=stock_history.index,
-                                         open=stock_history['Open'],
-                                         high=stock_history['High'],
-                                         low=stock_history['Low'],
-                                         close=stock_history['Close'],
+            candlestick = go.Candlestick(x=mutual fund_history.index,
+                                         open=mutual fund_history['Open'],
+                                         high=mutual fund_history['High'],
+                                         low=mutual fund_history['Low'],
+                                         close=mutual fund_history['Close'],
                                          name='Candlestick')
 
             # Create SMA 50 and SMA 200 traces
-            sma_50_trace = go.Scatter(x=stock_history.index, y=sma_50, mode='lines', name='SMA 50', line=dict(color='orange'))
-            sma_200_trace = go.Scatter(x=stock_history.index, y=sma_200, mode='lines', name='SMA 200', line=dict(color='red'))
+            sma_50_trace = go.Scatter(x=mutual fund_history.index, y=sma_50, mode='lines', name='SMA 50', line=dict(color='orange'))
+            sma_200_trace = go.Scatter(x=mutual fund_history.index, y=sma_200, mode='lines', name='SMA 200', line=dict(color='red'))
 
             # Create RSI trace
-            rsi_trace = go.Scatter(x=stock_history.index, y=rsi, mode='lines', name='RSI', line=dict(color='green'))
+            rsi_trace = go.Scatter(x=mutual fund_history.index, y=rsi, mode='lines', name='RSI', line=dict(color='green'))
 
             # Combine traces into data list
             data = [candlestick, sma_50_trace, sma_200_trace, rsi_trace]
@@ -244,25 +244,25 @@ def main():
             fig = go.Figure(data=data, layout=layout)
             st.plotly_chart(fig)
 
-            # Display stock information
-            stock_data = get_stock_data(ticker)
-            if stock_data:
-                st.subheader(f'Stock Information for {ticker}')
+            # Display mutual fund information
+            mutual fund_data = get_mutual fund_data(ticker)
+            if mutual fund_data:
+                st.subheader(f'mutual fund Information for {ticker}')
                 col1, col2 = st.columns(2)
 
-                for key, value in stock_data.items():
+                for key, value in mutual fund_data.items():
                     col1.write(f"**{key}:**")
                     col2.write(value)
 
                 # Display historical prices
                 st.subheader(f'Historical Prices for {ticker}')
                 st.write("Please consider $ as your local trading currency")
-                st.line_chart(stock_history['Close'])
+                st.line_chart(mutual fund_history['Close'])
 
-            stock_news = get_stock_news(ticker)
-            if stock_news:
+            mutual fund_news = get_mutual fund_news(ticker)
+            if mutual fund_news:
                 st.subheader(f'Latest News for {ticker}')
-                for article in stock_news:
+                for article in mutual fund_news:
                     st.markdown(f"[{article['title']}]({article['link']})")
 
 
@@ -279,7 +279,7 @@ def main():
                 top_peer_report = peer_reports[0]
                 st.markdown(f"[{top_peer_report['title']}]({top_peer_report['link']})")
 
-            trading_decision = get_trading_recommendation(stock_history)
+            trading_decision = get_trading_recommendation(mutual fund_history)
             st.subheader(f'Technical Analysis Recommendation for {ticker}')
             st.write(f"Suggestion: {trading_decision}")
 
